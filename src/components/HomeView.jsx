@@ -22,21 +22,6 @@ export default function HomeView() {
   return (
     <div className="bg-[#F2F2F7] min-h-screen">
 
-      {/* Header */}
-      <div className="bg-white px-5 pt-14 pb-6">
-        <p className="text-xs text-gray-400 mb-1">{dayjs().format('ddd, D MMM YYYY')}</p>
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Pending</p>
-            <p className="text-3xl font-bold text-gray-900 tracking-tight">
-              ฿{totalPendingThb.toLocaleString('en', { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-          <span className="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">
-            {pendingPeople.length} pending
-          </span>
-        </div>
-      </div>
 
       {/* Quick add — members */}
       <div className="bg-white mt-3 px-5 py-5">
