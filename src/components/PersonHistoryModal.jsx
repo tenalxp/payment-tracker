@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import dayjs from 'dayjs'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { useItems } from '../hooks/useItems'
 import { Avatar } from './MembersView'
 import AddDebtModal from './AddDebtModal'
 
@@ -11,11 +12,25 @@ const STATUS_CONFIG = {
   paid_cash: { label: 'Cash',    cls: 'bg-blue-50 text-blue-600' },
 }
 
+const STATUS_FILTERS = [
+  { key: 'all',       label: 'All' },
+  { key: 'pending',   label: 'Pending' },
+  { key: 'paid_qr',   label: 'QR' },
+  { key: 'paid_cash', label: 'Cash' },
+]
+
 export default function PersonHistoryModal({ person, onClose, onUpdate }) {
+  const { items } = useItems()
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
+
+  // filters
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [itemFilter, setItemFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   const fetchEntries = async () => {
     setLoading(true)
@@ -44,7 +59,15 @@ export default function PersonHistoryModal({ person, onClose, onUpdate }) {
     onUpdate?.()
   }
 
-  const totalPending = entries
+  const filtered = entries.filter(e => {
+    if (statusFilter !== 'all' && e.status !== statusFilter) return false
+    if (itemFilter && e.menu !== itemFilter) return false
+    if (dateFrom && e.date < dateFrom) return false
+    if (dateTo && e.date > dateTo) return false
+    return true
+  })
+
+  const totalPending = filtered
     .filter(e => e.status === 'pending')
     .reduce((acc, e) => {
       const c = e.currency || '฿'
@@ -52,19 +75,29 @@ export default function PersonHistoryModal({ person, onClose, onUpdate }) {
       return acc
     }, {})
 
+  const hasFilters = statusFilter !== 'all' || itemFilter || dateFrom || dateTo
+
   return (
     <div className="fixed inset-0 z-50 bg-[#F2F2F7] flex flex-col max-w-md mx-auto">
       {/* Header */}
-      <div className="bg-white px-5 pt-14 pb-4 shrink-0">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white px-5 pt-14 pb-4 shrink-0 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar name={person.name} icon={person.icon} size="sm" />
             <div>
               <p className="font-semibold text-gray-900">{person.name}</p>
-              <p className="text-xs text-gray-400">{entries.length} records</p>
+              <p className="text-xs text-gray-400">{filtered.length} records</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {hasFilters && (
+              <button
+                onClick={() => { setStatusFilter('all'); setItemFilter(''); setDateFrom(''); setDateTo('') }}
+                className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-50"
+              >
+                Clear
+              </button>
+            )}
             <button
               onClick={() => setShowAdd(true)}
               className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
@@ -82,7 +115,7 @@ export default function PersonHistoryModal({ person, onClose, onUpdate }) {
 
         {/* Pending summary chips */}
         {Object.keys(totalPending).length > 0 && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {Object.entries(totalPending).map(([cur, amt]) => (
               <div key={cur} className="bg-red-50 rounded-xl px-3 py-2">
                 <p className="text-[10px] text-red-400 font-medium">Pending</p>
@@ -91,18 +124,69 @@ export default function PersonHistoryModal({ person, onClose, onUpdate }) {
             ))}
           </div>
         )}
+
+        {/* Filters */}
+        <div className="flex flex-col gap-2">
+          {/* Date range */}
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <p className="text-[10px] text-gray-400 mb-1 px-1">From</p>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                className="w-full bg-gray-100 rounded-xl px-3 py-2 text-xs text-gray-700 outline-none"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] text-gray-400 mb-1 px-1">To</p>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                className="w-full bg-gray-100 rounded-xl px-3 py-2 text-xs text-gray-700 outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Item + Status pills */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+            <select
+              value={itemFilter}
+              onChange={e => setItemFilter(e.target.value)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border-0 outline-none shrink-0 ${
+                itemFilter ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              <option value="">All items</option>
+              {items.map(it => <option key={it.id} value={it.name}>{it.name}</option>)}
+            </select>
+
+            {STATUS_FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setStatusFilter(f.key)}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
+                  statusFilter === f.key ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
         {loading ? (
           <div className="text-center py-10 text-gray-300 text-sm">Loading...</div>
-        ) : entries.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="text-center py-10 bg-white rounded-2xl">
-            <p className="text-gray-400 text-sm">No records yet</p>
+            <p className="text-gray-400 text-sm">No records found</p>
           </div>
         ) : (
-          entries.map(entry => {
+          filtered.map(entry => {
             const st = STATUS_CONFIG[entry.status] || STATUS_CONFIG.pending
             return (
               <div key={entry.id} className="bg-white rounded-2xl px-4 py-3 flex items-center gap-3">
