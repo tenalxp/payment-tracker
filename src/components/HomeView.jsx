@@ -115,7 +115,7 @@ export default function HomeView() {
             {pendingPeople.map(p => (
               <button
                 key={p.name}
-                onClick={() => setHistoryPerson({ name: p.name })}
+                onClick={() => setHistoryPerson({ name: p.name, icon: people.find(m => m.name === p.name)?.icon })}
                 className="rounded-3xl p-4 text-left active:scale-95 transition-all"
                 style={{
                   background: 'rgba(255,255,255,0.8)',

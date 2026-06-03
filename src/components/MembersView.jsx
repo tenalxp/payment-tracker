@@ -121,7 +121,7 @@ export default function MembersView() {
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm text-center">
-            <Avatar name={confirmDelete.name} />
+            <Avatar name={confirmDelete.name} icon={confirmDelete.icon} />
             <h3 className="font-bold text-gray-800 mt-3">Remove "{confirmDelete.name}"?</h3>
             <p className="text-sm text-gray-400 mt-1">Their payment records will remain.</p>
             <div className="flex gap-3 mt-5">

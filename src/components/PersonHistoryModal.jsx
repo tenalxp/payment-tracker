@@ -50,7 +50,7 @@ export default function PersonHistoryModal({ person, onClose, onUpdate }) {
       <div className="bg-white px-5 pt-14 pb-4 shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Avatar name={person.name} size="sm" />
+            <Avatar name={person.name} icon={person.icon} size="sm" />
             <div>
               <p className="font-semibold text-gray-900">{person.name}</p>
               <p className="text-xs text-gray-400">{entries.length} records</p>

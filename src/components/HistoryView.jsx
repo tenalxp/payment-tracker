@@ -115,7 +115,7 @@ export default function HistoryView() {
                   onClick={() => { setSelectedMember(p.name); setMemberSearch(''); setShowMemberDrop(false) }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 text-left"
                 >
-                  <Avatar name={p.name} size="sm" />
+                  <Avatar name={p.name} icon={p.icon} size="sm" />
                   <span className="text-sm text-gray-700">{p.name}</span>
                 </button>
               ))}
@@ -192,7 +192,7 @@ export default function HistoryView() {
                   const st = STATUS_CONFIG[entry.status] || STATUS_CONFIG.pending
                   return (
                     <div key={entry.id} className="flex items-center gap-3 px-4 py-3">
-                      <Avatar name={entry.name} size="sm" />
+                      <Avatar name={entry.name} icon={people.find(p => p.name === entry.name)?.icon} size="sm" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-800">{entry.name}</p>
                         <p className="text-xs text-gray-400 truncate">{entry.menu || '—'}{entry.description ? ` · ${entry.description}` : ''}</p>
