@@ -40,7 +40,6 @@ export default function HomeView() {
             <p className="text-xs mb-2" style={{ color: '#8A9BAA' }}>Pending payments</p>
             <p className="text-5xl font-bold tracking-tight" style={{ color: '#2D3A48' }}>
               {pendingPeople.length}
-              <span className="text-lg font-normal ml-1" style={{ color: '#8A9BAA' }}>people</span>
             </p>
           </div>
         </div>
