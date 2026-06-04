@@ -34,7 +34,6 @@ function MonthlyCardContent({ monthLabel, summary, members }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img src={mascot} alt="" style={{ width: 44, height: 44, objectFit: 'contain' }} />
           <div>
-            <div style={{ fontSize: 10, color: 'rgba(30,40,60,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>Payment Tracker</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1f2e' }}>{monthLabel}</div>
           </div>
         </div>
@@ -96,7 +95,6 @@ function EntryCardContent({ entry }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img src={mascot} alt="" style={{ width: 44, height: 44, objectFit: 'contain' }} />
           <div>
-            <div style={{ fontSize: 10, color: 'rgba(30,40,60,0.5)', letterSpacing: 2, textTransform: 'uppercase' }}>Payment Tracker</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1f2e' }}>{dayjs(entry.date).format('ddd, D MMM YYYY')}</div>
           </div>
         </div>
