@@ -109,10 +109,7 @@ function EntryCardContent({ entry }) {
         {/* Member */}
         <div style={SEC}>
           <div style={LABEL}>Member</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={AVATAR}>{entry.name.slice(0, 2).toUpperCase()}</div>
-            <span style={{ fontSize: 18, fontWeight: 800, color: '#1a1f2e' }}>{entry.name}</span>
-          </div>
+          <div style={BIG}>{entry.name}</div>
         </div>
 
         {/* Item */}
