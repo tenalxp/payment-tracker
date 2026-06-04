@@ -21,7 +21,7 @@ function Header({ label }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <img src={mascot} alt="" style={{ width: 64, height: 64, objectFit: 'contain' }} />
-        <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(30,40,60,0.35)', letterSpacing: 3, textTransform: 'uppercase' }}>{label}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(30,40,60,0.35)', letterSpacing: 0.5, textTransform: 'uppercase' }}>{label}</span>
       </div>
       <div style={{ fontSize: 11, color: 'rgba(30,40,60,0.4)' }}>{dayjs().format('D MMM YYYY')}</div>
     </div>
