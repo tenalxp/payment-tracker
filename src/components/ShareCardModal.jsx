@@ -16,12 +16,17 @@ const BIG_RED = { fontSize: 28, fontWeight: 800, color: '#d95c5c', letterSpacing
 const AVATAR = { width: 28, height: 28, borderRadius: 8, background: 'rgba(106,155,170,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#6A9BAA' }
 const DATE_SUB = { fontSize: 12, color: 'rgba(30,40,60,0.4)', marginTop: 6, fontWeight: 500 }
 
-const HEADER = (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-    <img src={mascot} alt="" style={{ width: 64, height: 64, objectFit: 'contain' }} />
-    <div style={{ fontSize: 11, color: 'rgba(30,40,60,0.4)' }}>{dayjs().format('D MMM YYYY')}</div>
-  </div>
-)
+function Header({ label }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <img src={mascot} alt="" style={{ width: 64, height: 64, objectFit: 'contain' }} />
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(30,40,60,0.35)', letterSpacing: 3, textTransform: 'uppercase' }}>{label}</span>
+      </div>
+      <div style={{ fontSize: 11, color: 'rgba(30,40,60,0.4)' }}>{dayjs().format('D MMM YYYY')}</div>
+    </div>
+  )
+}
 
 // ─── Monthly Card ───────────────────────────────────────────────────────────
 function MonthlyCardContent({ monthLabel, summary, members, selectedMember, selectedItem }) {
@@ -37,7 +42,7 @@ function MonthlyCardContent({ monthLabel, summary, members, selectedMember, sele
       fontFamily: 'system-ui, -apple-system, sans-serif',
       position: 'relative', overflow: 'hidden',
     }}>
-      {HEADER}
+      <Header label="Monthly" />
 
       <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 
@@ -77,7 +82,7 @@ function EntryCardContent({ entry }) {
       fontFamily: 'system-ui, -apple-system, sans-serif',
       position: 'relative', overflow: 'hidden',
     }}>
-      {HEADER}
+      <Header label="Daily" />
 
       <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 
