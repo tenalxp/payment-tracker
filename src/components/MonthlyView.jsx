@@ -299,6 +299,8 @@ export default function MonthlyView() {
           data={{
             monthLabel,
             summary,
+            selectedMember,
+            selectedItem,
             members: Object.entries(byPerson).map(([name, items]) => ({
               name,
               total: items.reduce((s, e) => s + e.price, 0),

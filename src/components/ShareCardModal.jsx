@@ -24,7 +24,10 @@ const HEADER = (
 )
 
 // ─── Monthly Card ───────────────────────────────────────────────────────────
-function MonthlyCardContent({ monthLabel, summary, members }) {
+function MonthlyCardContent({ monthLabel, summary, members, selectedMember, selectedItem }) {
+  const memberLabel = selectedMember || members.map(m => m.name).join(', ') || 'All Members'
+  const itemLabel = selectedItem || 'All Items'
+
   return (
     <div style={{
       width: 400, aspectRatio: '4/5',
@@ -38,17 +41,17 @@ function MonthlyCardContent({ monthLabel, summary, members }) {
 
       <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 
-        {/* S1: Month + members as sub text */}
+        {/* S1: Member + month as sub text */}
         <div style={SEC}>
-          <div style={LABEL}>Month</div>
-          <div style={BIG}>{monthLabel}</div>
-          <div style={DATE_SUB}>{members.map(m => m.name).join(', ')}</div>
+          <div style={LABEL}>Member</div>
+          <div style={BIG}>{memberLabel}</div>
+          <div style={DATE_SUB}>{monthLabel}</div>
         </div>
 
-        {/* S2: Entries count */}
+        {/* S2: Item */}
         <div style={SEC}>
-          <div style={LABEL}>Members</div>
-          <div style={BIG}>{members.length} People</div>
+          <div style={LABEL}>Item</div>
+          <div style={BIG}>{itemLabel}</div>
         </div>
 
         {/* S3: Total */}
