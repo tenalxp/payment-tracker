@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas'
 import { X, Download, Image } from 'lucide-react'
 import dayjs from 'dayjs'
 import mascot from '../assets/mascot.png'
+import qr from '../assets/qr.png'
 
 const GRAD = 'linear-gradient(135deg, #c8dff5 0%, #d8eaf0 40%, #f5dfc8 100%)'
 const DARK2 = 'transparent'
@@ -61,9 +62,10 @@ function MonthlyCardContent({ monthLabel, summary, members, selectedMember, sele
 
         {/* S3: Total */}
         {Object.entries(summary).map(([cur, s]) => (
-          <div key={cur} style={SEC_LAST}>
+          <div key={cur} style={{ ...SEC_LAST, position: 'relative' }}>
             <div style={LABEL}>Total</div>
             <div style={BIG_RED}>{cur}{s.total.toLocaleString()}</div>
+            <img src={qr} alt="QR" style={{ position: 'absolute', bottom: 16, right: 20, width: 72, height: 72, borderRadius: 8, opacity: 0.92 }} />
           </div>
         ))}
       </div>
@@ -101,9 +103,10 @@ function EntryCardContent({ entry }) {
         </div>
 
         {/* S3: Amount */}
-        <div style={SEC_LAST}>
+        <div style={{ ...SEC_LAST, position: 'relative' }}>
           <div style={LABEL}>Amount</div>
           <div style={BIG_RED}>{entry.currency || '฿'}{entry.price.toLocaleString()}</div>
+          <img src={qr} alt="QR" style={{ position: 'absolute', bottom: 16, right: 20, width: 72, height: 72, borderRadius: 8, opacity: 0.92 }} />
         </div>
       </div>
     </div>
