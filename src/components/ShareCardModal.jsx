@@ -38,24 +38,17 @@ function MonthlyCardContent({ monthLabel, summary, members }) {
 
       <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 
-        {/* S1: Month + date */}
+        {/* S1: Month + members as sub text */}
         <div style={SEC}>
           <div style={LABEL}>Month</div>
           <div style={BIG}>{monthLabel}</div>
+          <div style={DATE_SUB}>{members.map(m => m.name).join(', ')}</div>
         </div>
 
-        {/* S2: Members */}
+        {/* S2: Entries count */}
         <div style={SEC}>
           <div style={LABEL}>Members</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {members.slice(0, 6).map((m, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={AVATAR}>{m.name.slice(0, 2).toUpperCase()}</div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1f2e' }}>{m.name}</span>
-              </div>
-            ))}
-            {members.length > 6 && <div style={{ fontSize: 11, color: 'rgba(30,40,60,0.35)' }}>+{members.length - 6} more</div>}
-          </div>
+          <div style={BIG}>{members.length} People</div>
         </div>
 
         {/* S3: Total */}
