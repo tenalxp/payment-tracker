@@ -25,9 +25,9 @@ function getInitials(name) {
 
 function Avatar({ name, icon, size = 'lg' }) {
   const color = getColor(name)
-  const sizeClass = size === 'lg' ? 'w-16 h-16' : size === 'md' ? 'w-14 h-14' : 'w-10 h-10'
-  const textSizeClass = size === 'lg' ? 'text-xl' : size === 'md' ? 'text-base' : 'text-sm'
-  const pixelSize = size === 'lg' ? 52 : size === 'md' ? 44 : 32
+  const sizeClass = size === 'lg' ? 'w-16 h-16' : size === 'md' ? 'w-14 h-14' : size === 'sm' ? 'w-10 h-10' : 'w-6 h-6'
+  const textSizeClass = size === 'lg' ? 'text-xl' : size === 'md' ? 'text-base' : size === 'sm' ? 'text-sm' : 'text-[9px]'
+  const pixelSize = size === 'lg' ? 52 : size === 'md' ? 44 : size === 'sm' ? 32 : 20
 
   if (icon) {
     return (
