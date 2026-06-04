@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import PinLock from './components/PinLock'
 import HomeView from './components/HomeView'
 import MonthlyView from './components/MonthlyView'
 import MembersView from './components/MembersView'
@@ -17,9 +18,12 @@ const TABS = [
 ]
 
 export default function App() {
+  const [unlocked, setUnlocked] = useState(false)
   const [tab, setTab] = useState('home')
   const [pendingTab, setPendingTab] = useState(null)
   const bulkDirtyRef = useRef(false)
+
+  if (!unlocked) return <PinLock onUnlock={() => setUnlocked(true)} />
 
   const handleTabClick = (key) => {
     if (tab === 'bulk' && key !== 'bulk' && bulkDirtyRef.current) {
