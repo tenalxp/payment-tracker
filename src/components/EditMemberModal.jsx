@@ -13,6 +13,7 @@ export default function EditMemberModal({ person, onClose, onUpdate }) {
     setSaving(true)
     await onUpdate(person.id, name, avatarId)
     setSaving(false)
+    window.location.reload()
   }
 
   return (

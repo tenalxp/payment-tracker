@@ -18,12 +18,12 @@ const TABS = [
 ]
 
 export default function App() {
-  const [unlocked, setUnlocked] = useState(false)
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('unlocked') === '1')
   const [tab, setTab] = useState('home')
   const [pendingTab, setPendingTab] = useState(null)
   const bulkDirtyRef = useRef(false)
 
-  if (!unlocked) return <PinLock onUnlock={() => setUnlocked(true)} />
+  if (!unlocked) return <PinLock onUnlock={() => { sessionStorage.setItem('unlocked', '1'); setUnlocked(true) }} />
 
   const handleTabClick = (key) => {
     if (tab === 'bulk' && key !== 'bulk' && bulkDirtyRef.current) {

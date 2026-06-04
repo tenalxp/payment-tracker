@@ -54,12 +54,20 @@ export function usePeople() {
 
     if (!error) {
       setPeople(prev => prev.map(p => p.id === id ? data : p).sort((a, b) => a.name.localeCompare(b.name)))
-      // always sync name in coffee_entries (case-insensitive match)
+      // sync name in coffee_entries — fetch all entries and filter case-insensitively
       if (oldPerson) {
-        await supabase
+        const { data: allEntries } = await supabase
           .from('coffee_entries')
-          .update({ name: trimmed })
-          .ilike('name', oldPerson.name)
+          .select('id, name')
+        const toUpdate = (allEntries || []).filter(
+          e => e.name.toLowerCase() === oldPerson.name.toLowerCase()
+        )
+        if (toUpdate.length > 0) {
+          await supabase
+            .from('coffee_entries')
+            .update({ name: trimmed })
+            .in('id', toUpdate.map(e => e.id))
+        }
       }
     }
     return error
