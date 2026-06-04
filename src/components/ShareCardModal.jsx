@@ -123,7 +123,7 @@ export default function ShareCardModal({ type, data, onClose }) {
     setDownloading(true)
     try {
       const canvas = await html2canvas(cardRef.current, {
-        scale: 2, useCORS: true, backgroundColor: null,
+        scale: 4, useCORS: true, backgroundColor: null,
       })
       const link = document.createElement('a')
       link.download = type === 'monthly'
