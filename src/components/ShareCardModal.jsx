@@ -31,63 +31,54 @@ function MonthlyCardContent({ monthLabel, summary, members }) {
         <div style={{ fontSize: 11, color: 'rgba(30,40,60,0.4)' }}>{dayjs().format('D MMM YYYY')}</div>
       </div>
 
-      {/* Total card */}
-      {Object.entries(summary).map(([cur, s]) => (
-        <div key={cur} style={{
-          background: DARK2, borderRadius: 20, padding: '20px 24px', marginBottom: 12,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-        }}>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Total</div>
-          <div style={{ fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: -1 }}>
-            {cur}{s.total.toLocaleString()}
-          </div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-            {s.pending > 0 && (
-              <div style={{ background: 'rgba(255,138,128,0.18)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: '#ff8a80' }}>
-                Pending -{cur}{s.pending.toLocaleString()}
-              </div>
-            )}
-            {s.paid > 0 && (
-              <div style={{ background: 'rgba(105,240,174,0.18)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: '#69f0ae' }}>
-                Paid {cur}{s.paid.toLocaleString()}
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
+      {/* Single unified card */}
+      <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, boxShadow: '0 12px 40px rgba(0,0,0,0.22)' }}>
 
-      {/* Members card */}
-      <div style={{
-        background: DARK, borderRadius: 20, padding: '20px 24px', flex: 1, overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-      }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>
-          Members · {members.length} people
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {members.slice(0, 7).map((m, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: 8,
-                  background: 'rgba(106,155,170,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 700, color: '#6A9BAA',
-                }}>
-                  {m.name.slice(0, 2).toUpperCase()}
+        {/* Total section */}
+        {Object.entries(summary).map(([cur, s]) => (
+          <div key={cur} style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Total</div>
+            <div style={{ fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: -1 }}>
+              {cur}{s.total.toLocaleString()}
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+              {s.pending > 0 && (
+                <div style={{ background: 'rgba(255,138,128,0.15)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: '#ff8a80' }}>
+                  Pending -{cur}{s.pending.toLocaleString()}
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{m.name}</span>
+              )}
+              {s.paid > 0 && (
+                <div style={{ background: 'rgba(105,240,174,0.15)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: '#69f0ae' }}>
+                  Paid {cur}{s.paid.toLocaleString()}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Members section */}
+        <div style={{ padding: '20px 24px' }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 14 }}>
+            Members · {members.length} people
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {members.slice(0, 7).map((m, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(106,155,170,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#6A9BAA' }}>
+                    {m.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{m.name}</span>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: m.pending > 0 ? '#ff8a80' : '#69f0ae' }}>
+                  {m.currency}{m.total.toLocaleString()}
+                </span>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: m.pending > 0 ? '#ff8a80' : '#69f0ae' }}>
-                {m.currency}{m.total.toLocaleString()}
-              </span>
-            </div>
-          ))}
-          {members.length > 7 && (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', marginTop: 2 }}>
-              +{members.length - 7} more
-            </div>
-          )}
+            ))}
+            {members.length > 7 && (
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>+{members.length - 7} more</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -116,32 +107,36 @@ function EntryCardContent({ entry }) {
         </div>
       </div>
 
-      {/* Member */}
-      <div style={{ background: DARK2, borderRadius: 20, padding: '18px 24px', marginBottom: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Member</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(106,155,170,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#6A9BAA' }}>
-            {entry.name.slice(0, 2).toUpperCase()}
+      {/* Single unified card */}
+      <div style={{ background: DARK2, borderRadius: 24, overflow: 'hidden', flex: 1, boxShadow: '0 12px 40px rgba(0,0,0,0.22)' }}>
+
+        {/* Member row */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Member</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(106,155,170,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#6A9BAA' }}>
+              {entry.name.slice(0, 2).toUpperCase()}
+            </div>
+            <span style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>{entry.name}</span>
           </div>
-          <span style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>{entry.name}</span>
         </div>
-      </div>
 
-      {/* Item */}
-      <div style={{ background: DARK, borderRadius: 20, padding: '18px 24px', marginBottom: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Item</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{entry.menu || '—'}</div>
-        {entry.description && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{entry.description}</div>}
-      </div>
-
-      {/* Amount */}
-      <div style={{ background: DARK2, borderRadius: 20, padding: '18px 24px', flex: 1, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Amount</div>
-        <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -2, color: isPending ? '#ff8a80' : '#69f0ae' }}>
-          {entry.currency || '฿'}{entry.price.toLocaleString()}
+        {/* Item row */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Item</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{entry.menu || '—'}</div>
+          {entry.description && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{entry.description}</div>}
         </div>
-        <div style={{ display: 'inline-flex', marginTop: 12, padding: '5px 14px', borderRadius: 20, background: isPending ? 'rgba(255,138,128,0.18)' : 'rgba(105,240,174,0.18)', color: isPending ? '#ff8a80' : '#69f0ae', fontSize: 12, fontWeight: 600, width: 'fit-content' }}>
-          {isPending ? 'Pending' : entry.status === 'paid_qr' ? 'Paid · QR' : 'Paid · Cash'}
+
+        {/* Amount row */}
+        <div style={{ padding: '24px 24px', flex: 1 }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Amount</div>
+          <div style={{ fontSize: 48, fontWeight: 800, letterSpacing: -2, color: isPending ? '#ff8a80' : '#69f0ae' }}>
+            {entry.currency || '฿'}{entry.price.toLocaleString()}
+          </div>
+          <div style={{ display: 'inline-flex', marginTop: 14, padding: '6px 16px', borderRadius: 20, background: isPending ? 'rgba(255,138,128,0.15)' : 'rgba(105,240,174,0.15)', color: isPending ? '#ff8a80' : '#69f0ae', fontSize: 12, fontWeight: 600 }}>
+            {isPending ? 'Pending' : entry.status === 'paid_qr' ? 'Paid · QR' : 'Paid · Cash'}
+          </div>
         </div>
       </div>
     </div>
