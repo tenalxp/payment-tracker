@@ -54,12 +54,12 @@ export function usePeople() {
 
     if (!error) {
       setPeople(prev => prev.map(p => p.id === id ? data : p).sort((a, b) => a.name.localeCompare(b.name)))
-      // also update name in all coffee_entries
-      if (oldPerson && oldPerson.name !== trimmed) {
+      // always sync name in coffee_entries (case-insensitive match)
+      if (oldPerson) {
         await supabase
           .from('coffee_entries')
           .update({ name: trimmed })
-          .eq('name', oldPerson.name)
+          .ilike('name', oldPerson.name)
       }
     }
     return error
