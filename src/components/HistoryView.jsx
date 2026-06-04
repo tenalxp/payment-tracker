@@ -240,7 +240,7 @@ export default function HistoryView() {
         </div>
       )}
 
-      <div className="px-5 py-4 flex flex-col gap-6">
+      <div className="px-5 py-4 flex flex-col gap-1">
         {loading ? (
           <div className="text-center py-10 text-gray-300 text-sm">Loading...</div>
         ) : entries.length === 0 ? (
@@ -250,7 +250,7 @@ export default function HistoryView() {
         ) : (
           Object.entries(grouped).map(([date, items]) => (
             <div key={date}>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 mt-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 mt-8">
                 {dayjs(date).format('ddd, D MMM YYYY')}
               </p>
               <div className="bg-white rounded-2xl overflow-hidden divide-y divide-gray-50">
