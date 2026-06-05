@@ -40,7 +40,7 @@ function MonthlyCardContent({ monthLabel, summary, members, selectedMember, sele
       background: GRAD,
       borderRadius: 32, padding: 28,
       display: 'flex', flexDirection: 'column',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontFamily: "'Noto Sans Lao', system-ui, -apple-system, sans-serif",
       position: 'relative', overflow: 'hidden',
     }}>
       <Header label="Monthly" />
@@ -86,7 +86,7 @@ function EntryCardContent({ entry }) {
       background: GRAD,
       borderRadius: 32, padding: 28,
       display: 'flex', flexDirection: 'column',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontFamily: "'Noto Sans Lao', system-ui, -apple-system, sans-serif",
       position: 'relative', overflow: 'hidden',
     }}>
       <Header label="Daily" />

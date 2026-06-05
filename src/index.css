@@ -2,7 +2,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Noto Sans Lao', system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
 @keyframes shake {
