@@ -134,13 +134,14 @@ export default function ShareCardModal({ type, data, onClose }) {
         ? `payment-${data.monthLabel.replace(' ', '-')}.jpg`
         : `payment-${data.entry.name}-${data.entry.date}.jpg`
 
-      // iOS: use Web Share API → saves to Photos
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95))
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
       const file = new File([blob], filename, { type: 'image/jpeg' })
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (isIOS && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        // iOS: Share sheet → Add to Photos
         await navigator.share({ files: [file] })
       } else {
-        // fallback for desktop/Android
+        // Mac / Android / desktop: download ตรงๆ
         const link = document.createElement('a')
         link.download = filename
         link.href = URL.createObjectURL(blob)
