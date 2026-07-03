@@ -132,7 +132,8 @@ function ByMemberMode({ people, items, dirtyRef }) {
           </div>
           <button onClick={handleSave} disabled={!canSave || saving}
             className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-              saved ? 'bg-emerald-500 text-white' : canSave ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+              saved ? 'bg-emerald-400 text-white' : canSave ? 'text-teal-700 hover:opacity-80' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+            style={canSave && !saved ? { background: 'linear-gradient(135deg, #b2e8d8 0%, #a8d8ea 100%)' } : {}}>
             {saved ? <><CheckCircle2 size={16} /> Saved!</> : saving ? 'Saving...' : `Save ${validRows.length} ${validRows.length === 1 ? 'entry' : 'entries'}`}
           </button>
         </div>
@@ -255,7 +256,8 @@ function ByDayMode({ people, items, dirtyRef }) {
           </div>
           <button onClick={handleSave} disabled={!canSave || saving}
             className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-              saved ? 'bg-emerald-500 text-white' : canSave ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+              saved ? 'bg-emerald-400 text-white' : canSave ? 'text-teal-700 hover:opacity-80' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+            style={canSave && !saved ? { background: 'linear-gradient(135deg, #b2e8d8 0%, #a8d8ea 100%)' } : {}}>
             {saved ? <><CheckCircle2 size={16} /> Saved!</> : saving ? 'Saving...' : `Save ${validRows.length} ${validRows.length === 1 ? 'entry' : 'entries'}`}
           </button>
         </div>
