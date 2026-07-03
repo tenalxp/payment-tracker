@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import dayjs from 'dayjs'
-import { Plus } from 'lucide-react'
+import { Plus, Bell, BellOff } from 'lucide-react'
 import mascot from '../assets/mascot.png'
 import { usePeople } from '../hooks/usePeople'
 import { usePendingByPerson } from '../hooks/useCoffeeEntries'
@@ -9,12 +9,24 @@ import AddDebtModal from './AddDebtModal'
 import AddMemberModal from './AddMemberModal'
 import PersonHistoryModal from './PersonHistoryModal'
 
+const NOTIFIED_KEY = 'notified_people'
+const getNotified = () => JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '{}')
+const setNotified = (obj) => localStorage.setItem(NOTIFIED_KEY, JSON.stringify(obj))
+
 export default function HomeView() {
   const { people } = usePeople()
   const { data: pendingPeople, loading, refetch } = usePendingByPerson()
   const [selectedPerson, setSelectedPerson] = useState(null)
   const [historyPerson, setHistoryPerson] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
+  const [notified, setNotifiedState] = useState(getNotified)
+
+  const toggleNotified = (e, name) => {
+    e.stopPropagation()
+    const next = { ...notified, [name]: !notified[name] }
+    setNotifiedState(next)
+    setNotified(next)
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #E8EEF5 0%, #EDF3F0 100%)' }}>
@@ -144,8 +156,18 @@ export default function HomeView() {
                   border: '1px solid rgba(255,255,255,0.9)'
                 }}
               >
-                <div className="mb-3">
+                <div className="flex items-start justify-between mb-3">
                   <Avatar name={p.name} icon={people.find(m => m.name === p.name)?.icon} size="sm" />
+                  <button
+                    onClick={(e) => toggleNotified(e, p.name)}
+                    className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                    style={{
+                      background: notified[p.name] ? 'rgba(251,191,36,0.15)' : 'rgba(0,0,0,0.04)',
+                      color: notified[p.name] ? '#f59e0b' : '#C0CBD6',
+                    }}
+                  >
+                    {notified[p.name] ? <Bell size={13} fill="#f59e0b" /> : <Bell size={13} />}
+                  </button>
                 </div>
                 <p className="font-bold text-sm truncate mb-0.5" style={{ color: '#2D3A48' }}>{p.name}</p>
                 <p className="text-[11px] mb-3" style={{ color: '#8A9BAA' }}>{dayjs(p.latestDate).format('D MMM YYYY')}</p>
