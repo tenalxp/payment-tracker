@@ -118,7 +118,7 @@ function ByMemberMode({ people, items, dirtyRef }) {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] text-gray-400 font-medium">Total · {validRows.length} entries</p>
-              <p className="text-2xl font-bold text-gray-900 mt-0.5">{currency}{total.toLocaleString()}</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: '#d95c5c' }}>{currency}{total.toLocaleString()}</p>
             </div>
             {selectedMember && (
               <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ function ByDayMode({ people, items, dirtyRef }) {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] text-gray-400 font-medium">Total · {validRows.length} members</p>
-              <p className="text-2xl font-bold text-gray-900 mt-0.5">{currency}{total.toLocaleString()}</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: '#d95c5c' }}>{currency}{total.toLocaleString()}</p>
             </div>
             <div className="text-right">
               <p className="text-xs font-semibold text-gray-700">{dayjs(date).format('D MMM YYYY')}</p>
