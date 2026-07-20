@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, X, Check, Users, Calendar, Receipt } from 'lucide-react'
+import { Plus, Trash2, X, Check, Users, Calendar, Receipt, Pencil } from 'lucide-react'
 import dayjs from 'dayjs'
 
 const STORAGE_KEY = 'shared_expenses'
@@ -8,13 +8,15 @@ const CURRENCIES = ['฿', '₭', '$']
 const load = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
 const save = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 
-function CreateModal({ onClose, onCreate }) {
-  const [title, setTitle] = useState('')
-  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'))
-  const [price, setPrice] = useState('')
-  const [currency, setCurrency] = useState('฿')
+// ── Form Modal (create + edit) ─────────────────────────────────────────────
+function ExpenseFormModal({ expense, onClose, onSave }) {
+  const isEdit = !!expense
+  const [title, setTitle] = useState(expense?.title || '')
+  const [date, setDate] = useState(expense?.date || dayjs().format('YYYY-MM-DD'))
+  const [price, setPrice] = useState(expense?.price?.toString() || '')
+  const [currency, setCurrency] = useState(expense?.currency || '฿')
   const [memberInput, setMemberInput] = useState('')
-  const [members, setMembers] = useState([])
+  const [members, setMembers] = useState(expense?.members?.map(m => m.name) || [])
 
   const addMember = () => {
     const name = memberInput.trim()
@@ -29,20 +31,32 @@ function CreateModal({ onClose, onCreate }) {
     if (e.key === 'Enter') { e.preventDefault(); addMember() }
   }
 
-  const canCreate = title.trim() && price && members.length > 0
+  const canSave = title.trim() && price && members.length > 0
 
-  const handleCreate = () => {
-    if (!canCreate) return
-    const expense = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      date,
-      price: parseFloat(price),
-      currency,
-      members: members.map(name => ({ name, paid: false })),
-      createdAt: new Date().toISOString(),
+  const handleSave = () => {
+    if (!canSave) return
+    if (isEdit) {
+      // preserve paid status for existing members, reset for new members
+      const prevMap = Object.fromEntries((expense.members || []).map(m => [m.name, m.paid]))
+      onSave({
+        ...expense,
+        title: title.trim(),
+        date,
+        price: parseFloat(price),
+        currency,
+        members: members.map(name => ({ name, paid: prevMap[name] ?? false })),
+      })
+    } else {
+      onSave({
+        id: Date.now().toString(),
+        title: title.trim(),
+        date,
+        price: parseFloat(price),
+        currency,
+        members: members.map(name => ({ name, paid: false })),
+        createdAt: new Date().toISOString(),
+      })
     }
-    onCreate(expense)
     onClose()
   }
 
@@ -55,7 +69,9 @@ function CreateModal({ onClose, onCreate }) {
           <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
 
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-bold text-gray-900">New Shared Expense</h2>
+            <h2 className="text-base font-bold text-gray-900">
+              {isEdit ? 'Edit Expense' : 'New Shared Expense'}
+            </h2>
             <button onClick={onClose}
               className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200">
               <X size={14} />
@@ -137,17 +153,17 @@ function CreateModal({ onClose, onCreate }) {
               )}
               {members.length > 0 && price && (
                 <p className="text-xs text-gray-400 mt-2 px-1">
-                  {currency}{(parseFloat(price) / members.length).toLocaleString(undefined, { maximumFractionDigits: 0 })} / person
+                  {currency}{Math.ceil(parseFloat(price) / members.length).toLocaleString()} / person
                 </p>
               )}
             </div>
           </div>
 
           <button
-            onClick={handleCreate}
-            disabled={!canCreate}
-            className={`w-full mt-5 py-3.5 rounded-2xl font-semibold text-sm transition-all ${canCreate ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
-            Create
+            onClick={handleSave}
+            disabled={!canSave}
+            className={`w-full mt-5 py-3.5 rounded-2xl font-semibold text-sm transition-all ${canSave ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+            {isEdit ? 'Save Changes' : 'Create'}
           </button>
         </div>
       </div>
@@ -155,7 +171,8 @@ function CreateModal({ onClose, onCreate }) {
   )
 }
 
-function ExpenseCard({ expense, onTogglePaid, onDelete, onConfirmDelete }) {
+// ── Expense Card ───────────────────────────────────────────────────────────
+function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
   const perPerson = expense.price / expense.members.length
   const paidCount = expense.members.filter(m => m.paid).length
 
@@ -179,10 +196,16 @@ function ExpenseCard({ expense, onTogglePaid, onDelete, onConfirmDelete }) {
               </div>
             </div>
           </div>
-          <button onClick={() => onConfirmDelete(expense.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0">
-            <Trash2 size={13} />
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            <button onClick={() => onEdit(expense)}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-300 hover:text-blue-400 hover:bg-blue-50 transition-colors">
+              <Pencil size={12} />
+            </button>
+            <button onClick={() => onConfirmDelete(expense.id)}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors">
+              <Trash2 size={13} />
+            </button>
+          </div>
         </div>
 
         {/* Amount */}
@@ -233,10 +256,7 @@ function ExpenseCard({ expense, onTogglePaid, onDelete, onConfirmDelete }) {
               {member.paid && <Check size={12} color="white" strokeWidth={3} />}
             </div>
             <span className="text-sm font-medium flex-1 text-left transition-all"
-              style={{
-                color: member.paid ? '#9CA3AF' : '#374151',
-                textDecoration: member.paid ? 'line-through' : 'none',
-              }}>
+              style={{ color: member.paid ? '#9CA3AF' : '#374151', textDecoration: member.paid ? 'line-through' : 'none' }}>
               {member.name}
             </span>
             <span className="text-xs font-semibold transition-all"
@@ -250,15 +270,20 @@ function ExpenseCard({ expense, onTogglePaid, onDelete, onConfirmDelete }) {
   )
 }
 
+// ── Main View ──────────────────────────────────────────────────────────────
 export default function SharedExpenseView() {
   const [expenses, setExpenses] = useState(load)
-  const [showCreate, setShowCreate] = useState(false)
+  const [showForm, setShowForm] = useState(false)
+  const [editExpense, setEditExpense] = useState(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   useEffect(() => { save(expenses) }, [expenses])
 
-  const handleCreate = (expense) => {
-    setExpenses(prev => [expense, ...prev])
+  const handleSave = (expense) => {
+    setExpenses(prev => {
+      const exists = prev.find(e => e.id === expense.id)
+      return exists ? prev.map(e => e.id === expense.id ? expense : e) : [expense, ...prev]
+    })
   }
 
   const handleTogglePaid = (expenseId, memberIndex) => {
@@ -274,6 +299,16 @@ export default function SharedExpenseView() {
     setConfirmDeleteId(null)
   }
 
+  const openEdit = (expense) => {
+    setEditExpense(expense)
+    setShowForm(true)
+  }
+
+  const closeForm = () => {
+    setShowForm(false)
+    setEditExpense(null)
+  }
+
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #E8EEF5 0%, #EDF3F0 100%)' }}>
 
@@ -285,7 +320,7 @@ export default function SharedExpenseView() {
             <h1 className="text-xl font-bold" style={{ color: '#2D3A48' }}>Shared Expense</h1>
           </div>
           <button
-            onClick={() => setShowCreate(true)}
+            onClick={() => { setEditExpense(null); setShowForm(true) }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl font-semibold text-sm text-white transition-colors hover:opacity-90"
             style={{ background: '#2D3A48' }}
           >
@@ -313,15 +348,19 @@ export default function SharedExpenseView() {
               key={expense.id}
               expense={expense}
               onTogglePaid={handleTogglePaid}
-              onDelete={handleDelete}
               onConfirmDelete={setConfirmDeleteId}
+              onEdit={openEdit}
             />
           ))
         )}
       </div>
 
-      {showCreate && (
-        <CreateModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />
+      {showForm && (
+        <ExpenseFormModal
+          expense={editExpense}
+          onClose={closeForm}
+          onSave={handleSave}
+        />
       )}
 
       {/* Confirm delete */}
