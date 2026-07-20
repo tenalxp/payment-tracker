@@ -180,17 +180,47 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
   const [saving, setSaving] = useState(false)
 
   const handleSaveImage = async () => {
-    if (!cardRef.current) return
     setSaving(true)
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3, useCORS: true, backgroundColor: '#ffffff',
-      })
+      // สร้าง snapshot div ชั่วคราวนอกหน้าจอ
+      const snap = document.createElement('div')
+      snap.style.cssText = 'position:fixed;left:-9999px;top:0;background:#fff;width:360px;padding:20px;font-family:system-ui,sans-serif;border-radius:20px;'
+
+      const paidCount2 = expense.members.filter(m => m.paid).length
+      snap.innerHTML = `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:16px;font-weight:800;color:#1a2636;">${expense.title}</div>
+          <div style="font-size:11px;color:#8A9BAA;margin-top:3px;">${dayjs(expense.date).format('D MMM YYYY')} · ${expense.members.length} people</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;margin-bottom:10px;">
+          <div><div style="font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:2px;">TOTAL</div><div style="font-size:20px;font-weight:800;color:#d95c5c;">${expense.currency}${expense.price.toLocaleString()}</div></div>
+          <div style="text-align:right"><div style="font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:2px;">PER PERSON</div><div style="font-size:16px;font-weight:700;color:#374151;">${expense.currency}${Math.ceil(perPerson).toLocaleString()}</div></div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="height:6px;background:#f0f0f0;border-radius:99px;overflow:hidden;"><div style="height:100%;width:${(paidCount2/expense.members.length)*100}%;background:linear-gradient(90deg,#6ee7b7,#34d399);border-radius:99px;"></div></div>
+          <div style="font-size:10px;color:#8A9BAA;margin-top:4px;">${paidCount2}/${expense.members.length} paid</div>
+        </div>
+        <div>${expense.members.map(m => `
+          <div style="display:flex;align-items:center;gap:10px;padding:5px 0;">
+            <div style="width:16px;height:16px;border-radius:50%;background:${m.paid ? '#10b981' : 'transparent'};border:${m.paid ? 'none' : '1.5px solid #D0D8E0'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${m.paid ? '<span style="color:white;font-size:10px;font-weight:900;">✓</span>' : ''}
+            </div>
+            <span style="font-size:12px;font-weight:500;flex:1;color:${m.paid ? '#9CA3AF' : '#374151'};text-decoration:${m.paid ? 'line-through' : 'none'};">${m.name}</span>
+            <span style="font-size:11px;font-weight:600;color:${m.paid ? '#9CA3AF' : '#d95c5c'};">${m.paid ? '✓ paid' : `${expense.currency}${Math.ceil(perPerson).toLocaleString()}`}</span>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;font-size:9px;color:#C0C8D0;text-align:right;">Payment Tracker</div>
+      `
+      document.body.appendChild(snap)
+
+      const canvas = await html2canvas(snap, { scale: 3, useCORS: true, backgroundColor: '#ffffff' })
+      document.body.removeChild(snap)
+
       const filename = `split-${expense.title.replace(/\s+/g, '-')}.jpg`
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95))
       const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
       const file = new File([blob], filename, { type: 'image/jpeg' })
-      if (isIOS && navigator.share && navigator.canShare?.({ files: [file] })) {
+      if (isIOS && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file] })
       } else {
         const link = document.createElement('a')
@@ -199,6 +229,8 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         link.click()
         URL.revokeObjectURL(link.href)
       }
+    } catch (err) {
+      console.error('Save image failed:', err)
     } finally {
       setSaving(false)
     }
