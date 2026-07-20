@@ -157,10 +157,10 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
 
           <!-- header band -->
           <div style="background:${HEADER_GRAD};padding:20px 22px 16px;">
-            <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;">${expense.title}</div>
+            <div style="font-size:18px;font-weight:800;color:#1a2636;letter-spacing:-0.3px;">${expense.title}</div>
             <div style="display:flex;gap:14px;margin-top:6px;">
-              <span style="font-size:11px;color:rgba(255,255,255,0.55);">${dayjs(expense.date).format('D MMM YYYY')}</span>
-              <span style="font-size:11px;color:rgba(255,255,255,0.55);">${expense.members.length} people</span>
+              <span style="font-size:11px;color:rgba(26,38,54,0.5);">${dayjs(expense.date).format('D MMM YYYY')}</span>
+              <span style="font-size:11px;color:rgba(26,38,54,0.5);">${expense.members.length} people</span>
             </div>
           </div>
 
@@ -238,23 +238,23 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
       <div className="px-5 pt-4 pb-4" style={{ background: HEADER_GRAD }}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-white truncate" style={{ fontSize: 16, letterSpacing: -0.3 }}>{expense.title}</p>
+            <p className="font-bold truncate" style={{ fontSize: 16, letterSpacing: -0.3, color: '#1a2636' }}>{expense.title}</p>
             <div className="flex items-center gap-3 mt-1.5">
-              <div className="flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <div className="flex items-center gap-1" style={{ color: 'rgba(26,38,54,0.5)' }}>
                 <Calendar size={10} />
                 <span style={{ fontSize: 11 }}>{dayjs(expense.date).format('D MMM YYYY')}</span>
               </div>
-              <div className="flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <div className="flex items-center gap-1" style={{ color: 'rgba(26,38,54,0.5)' }}>
                 <Users size={10} />
                 <span style={{ fontSize: 11 }}>{expense.members.length} people</span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button onClick={() => onEdit(expense)} className="w-7 h-7 rounded-full flex items-center justify-center transition-colors" style={{ color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)' }}>
+            <button onClick={() => onEdit(expense)} className="w-7 h-7 rounded-full flex items-center justify-center transition-colors" style={{ color: 'rgba(26,38,54,0.4)', background: 'rgba(26,38,54,0.08)' }}>
               <Pencil size={11} />
             </button>
-            <button onClick={() => onConfirmDelete(expense.id)} className="w-7 h-7 rounded-full flex items-center justify-center transition-colors" style={{ color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)' }}>
+            <button onClick={() => onConfirmDelete(expense.id)} className="w-7 h-7 rounded-full flex items-center justify-center transition-colors" style={{ color: 'rgba(26,38,54,0.4)', background: 'rgba(26,38,54,0.08)' }}>
               <Trash2 size={12} />
             </button>
           </div>
