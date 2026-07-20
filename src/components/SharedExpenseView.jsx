@@ -7,12 +7,14 @@ const STORAGE_KEY = 'shared_expenses'
 const CURRENCIES = ['฿', '₭', '$']
 
 const HEADER_COLORS = [
-  { id: 'navy',    grad: 'linear-gradient(135deg,#1a2636 0%,#2d3f54 100%)',  thumb: '#1a2636' },
-  { id: 'rose',    grad: 'linear-gradient(135deg,#8b2252 0%,#c2446e 100%)',  thumb: '#8b2252' },
-  { id: 'forest',  grad: 'linear-gradient(135deg,#1a4731 0%,#2d6a4f 100%)',  thumb: '#1a4731' },
-  { id: 'indigo',  grad: 'linear-gradient(135deg,#2d2b8a 0%,#4a47c4 100%)',  thumb: '#2d2b8a' },
-  { id: 'amber',   grad: 'linear-gradient(135deg,#78350f 0%,#b45309 100%)',  thumb: '#78350f' },
-  { id: 'slate',   grad: 'linear-gradient(135deg,#334155 0%,#64748b 100%)',  thumb: '#334155' },
+  { id: 'ocean',   grad: 'linear-gradient(135deg,#1a6dff 0%,#00c6fb 100%)',  thumb: 'linear-gradient(135deg,#1a6dff,#00c6fb)' },
+  { id: 'sunset',  grad: 'linear-gradient(135deg,#ff416c 0%,#ff8c42 100%)',  thumb: 'linear-gradient(135deg,#ff416c,#ff8c42)' },
+  { id: 'aurora',  grad: 'linear-gradient(135deg,#6a11cb 0%,#2575fc 100%)',  thumb: 'linear-gradient(135deg,#6a11cb,#2575fc)' },
+  { id: 'mint',    grad: 'linear-gradient(135deg,#00b09b 0%,#96e6a1 100%)',  thumb: 'linear-gradient(135deg,#00b09b,#96e6a1)' },
+  { id: 'candy',   grad: 'linear-gradient(135deg,#f953c6 0%,#b91d73 100%)',  thumb: 'linear-gradient(135deg,#f953c6,#b91d73)' },
+  { id: 'fire',    grad: 'linear-gradient(135deg,#f7971e 0%,#ffd200 100%)',  thumb: 'linear-gradient(135deg,#f7971e,#ffd200)' },
+  { id: 'cosmic',  grad: 'linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%)', thumb: 'linear-gradient(135deg,#302b63,#24243e)' },
+  { id: 'lime',    grad: 'linear-gradient(135deg,#56ab2f 0%,#a8e063 100%)',  thumb: 'linear-gradient(135deg,#56ab2f,#a8e063)' },
 ]
 
 const load = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
@@ -122,15 +124,14 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
 
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Header Color</p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {HEADER_COLORS.map(c => (
                   <button key={c.id} onClick={() => setHeaderColor(c.id)}
                     className="w-8 h-8 rounded-full transition-all"
                     style={{
                       background: c.thumb,
-                      outline: headerColor === c.id ? `3px solid ${c.thumb}` : 'none',
-                      outlineOffset: 2,
-                      transform: headerColor === c.id ? 'scale(1.15)' : 'scale(1)',
+                      boxShadow: headerColor === c.id ? `0 0 0 2.5px #fff, 0 0 0 4.5px rgba(0,0,0,0.25)` : '0 1px 4px rgba(0,0,0,0.15)',
+                      transform: headerColor === c.id ? 'scale(1.18)' : 'scale(1)',
                     }} />
                 ))}
               </div>
