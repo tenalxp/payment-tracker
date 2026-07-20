@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
-import { Plus, Trash2, X, Check, Users, Calendar, Receipt, Pencil } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Plus, Trash2, X, Check, Users, Calendar, Receipt, Pencil, ImageDown } from 'lucide-react'
 import dayjs from 'dayjs'
+import html2canvas from 'html2canvas'
 
 const STORAGE_KEY = 'shared_expenses'
 const CURRENCIES = ['฿', '₭', '$']
@@ -175,10 +176,38 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
 function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
   const perPerson = expense.price / expense.members.length
   const paidCount = expense.members.filter(m => m.paid).length
+  const cardRef = useRef(null)
+  const [saving, setSaving] = useState(false)
+
+  const handleSaveImage = async () => {
+    if (!cardRef.current) return
+    setSaving(true)
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3, useCORS: true, backgroundColor: '#ffffff',
+      })
+      const filename = `split-${expense.title.replace(/\s+/g, '-')}.jpg`
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95))
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
+      const file = new File([blob], filename, { type: 'image/jpeg' })
+      if (isIOS && navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] })
+      } else {
+        const link = document.createElement('a')
+        link.download = filename
+        link.href = URL.createObjectURL(blob)
+        link.click()
+        URL.revokeObjectURL(link.href)
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="bg-white rounded-3xl overflow-hidden"
       style={{ boxShadow: '0 4px 20px rgba(100,120,140,0.1)', border: '1px solid rgba(255,255,255,0.9)' }}>
+      <div ref={cardRef}>
 
       {/* Header */}
       <div className="px-5 pt-4 pb-3">
@@ -265,6 +294,20 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
             </span>
           </button>
         ))}
+      </div>
+      </div>
+
+      {/* Save image button */}
+      <div className="px-4 pb-4">
+        <button
+          onClick={handleSaveImage}
+          disabled={saving}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-xs font-semibold transition-all disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #b2e8d8 0%, #a8d8ea 100%)', color: '#2D6A5A' }}
+        >
+          <ImageDown size={14} />
+          {saving ? 'Saving...' : 'Save Image'}
+        </button>
       </div>
     </div>
   )
