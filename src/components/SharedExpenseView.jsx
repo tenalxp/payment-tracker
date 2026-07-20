@@ -144,7 +144,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
       snap.style.cssText = [
         'position:fixed', 'left:-9999px', 'top:0',
         'width:380px', 'padding:28px',
-        'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+        "font-family:'Noto Sans Lao',system-ui,-apple-system,sans-serif",
         'background:linear-gradient(145deg,#f8fafc 0%,#f0f4f8 100%)',
         'border-radius:0',
         'box-sizing:border-box',
@@ -190,12 +190,12 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
           <!-- members -->
           <div style="padding:10px 22px ${expense.note ? '0' : '16px'};">
             ${expense.members.map((m, i) => `
-              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;${i < expense.members.length - 1 ? 'border-bottom:1px solid #f5f6f8;' : ''}">
-                <div style="width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${m.paid ? '#10b981' : '#fff'};border:${m.paid ? 'none' : '1.5px solid #d0d8e0'};">
-                  ${m.paid ? '<span style="color:#fff;font-size:11px;line-height:1;font-weight:900;">✓</span>' : ''}
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 0;${i < expense.members.length - 1 ? 'border-bottom:1px solid #f5f6f8;' : ''}">
+                <div style="width:14px;height:14px;min-width:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${m.paid ? '#10b981' : '#fff'};border:${m.paid ? 'none' : '1.5px solid #d0d8e0'};box-sizing:border-box;">
+                  ${m.paid ? '<span style="color:#fff;font-size:9px;line-height:1;font-weight:900;">✓</span>' : ''}
                 </div>
-                <span style="font-size:13px;font-weight:600;flex:1;color:${m.paid ? '#b0b8c0' : '#1a2636'};text-decoration:${m.paid ? 'line-through' : 'none'};">${m.name}</span>
-                <span style="font-size:12px;font-weight:700;color:${m.paid ? '#b0b8c0' : '#d95c5c'};">${m.paid ? 'paid' : `${expense.currency}${perPerson.toLocaleString()}`}</span>
+                <span style="font-size:13px;font-weight:600;flex:1;line-height:1.2;color:${m.paid ? '#b0b8c0' : '#1a2636'};text-decoration:${m.paid ? 'line-through' : 'none'};">${m.name}</span>
+                <span style="font-size:12px;font-weight:700;line-height:1.2;color:${m.paid ? '#b0b8c0' : '#d95c5c'};">${m.paid ? 'paid' : `${expense.currency}${perPerson.toLocaleString()}`}</span>
               </div>`).join('')}
           </div>
 
@@ -293,8 +293,8 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
             className="flex items-center gap-3 w-full py-1.5 transition-all active:scale-95"
             style={{ borderBottom: i < expense.members.length - 1 ? '1px solid #f5f6f8' : 'none' }}>
             <div className="shrink-0 flex items-center justify-center rounded-full transition-all"
-              style={{ width: 18, height: 18, background: member.paid ? '#10b981' : '#fff', border: member.paid ? 'none' : '1.5px solid #d0d8e0' }}>
-              {member.paid && <Check size={10} color="white" strokeWidth={3} />}
+              style={{ width: 14, height: 14, background: member.paid ? '#10b981' : '#fff', border: member.paid ? 'none' : '1.5px solid #d0d8e0' }}>
+              {member.paid && <Check size={8} color="white" strokeWidth={3.5} />}
             </div>
             <span className="text-left transition-all flex-1" style={{ fontSize: 13, fontWeight: 600, color: member.paid ? '#b0b8c0' : '#1a2636', textDecoration: member.paid ? 'line-through' : 'none' }}>
               {member.name}
