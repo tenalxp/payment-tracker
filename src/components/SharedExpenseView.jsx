@@ -240,28 +240,28 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
       </div>
 
       {/* Members list */}
-      <div className="px-4 py-3 flex flex-col gap-1">
+      <div className="px-4 py-2 flex flex-col gap-0.5">
         {expense.members.map((member, i) => (
           <button
             key={i}
             onClick={() => onTogglePaid(expense.id, i)}
-            className="flex items-center gap-3 px-2 py-2.5 rounded-2xl transition-all active:scale-95"
+            className="flex items-center gap-2 px-2 py-1.5 rounded-xl transition-all active:scale-95"
             style={{ background: member.paid ? 'rgba(16,185,129,0.06)' : 'transparent' }}
           >
-            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all"
+            <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all"
               style={{
                 background: member.paid ? '#10b981' : 'transparent',
                 border: member.paid ? 'none' : '1.5px solid #D0D8E0',
               }}>
-              {member.paid && <Check size={12} color="white" strokeWidth={3} />}
+              {member.paid && <Check size={9} color="white" strokeWidth={3} />}
             </div>
-            <span className="text-sm font-medium flex-1 text-left transition-all"
+            <span className="text-xs font-medium flex-1 text-left transition-all"
               style={{ color: member.paid ? '#9CA3AF' : '#374151', textDecoration: member.paid ? 'line-through' : 'none' }}>
               {member.name}
             </span>
-            <span className="text-xs font-semibold transition-all"
+            <span className="text-[11px] font-semibold transition-all"
               style={{ color: member.paid ? '#9CA3AF' : '#d95c5c' }}>
-              {member.paid ? '✓ paid' : `${expense.currency}${Math.ceil(perPerson).toLocaleString()}`}
+              {member.paid ? '✓' : `${expense.currency}${Math.ceil(perPerson).toLocaleString()}`}
             </span>
           </button>
         ))}
