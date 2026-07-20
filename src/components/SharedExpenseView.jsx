@@ -47,12 +47,11 @@ function CreateModal({ onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-end justify-center z-50"
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       style={{ backdropFilter: 'blur(8px)' }}>
-      <div className="w-full max-w-md bg-white rounded-t-3xl flex flex-col"
-        style={{ boxShadow: '0 -8px 40px rgba(100,120,140,0.2)', maxHeight: '90vh' }}>
+      <div className="w-full max-w-md bg-white rounded-3xl flex flex-col"
+        style={{ boxShadow: '0 20px 60px rgba(100,120,140,0.25)', maxHeight: '88vh' }}>
         <div className="px-5 pt-5 pb-6 overflow-y-auto flex-1">
-          {/* Handle */}
           <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
 
           <div className="flex items-center justify-between mb-5">
