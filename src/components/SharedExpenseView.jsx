@@ -389,7 +389,7 @@ export default function SharedExpenseView() {
             <p className="text-sm text-gray-400">Tap New to split a bill with friends</p>
           </div>
         ) : (
-          expenses.map(expense => (
+          [...expenses].sort((a, b) => b.date.localeCompare(a.date)).map(expense => (
             <ExpenseCard key={expense.id} expense={expense} onTogglePaid={handleTogglePaid} onConfirmDelete={setConfirmDeleteId} onEdit={openEdit} />
           ))
         )}
