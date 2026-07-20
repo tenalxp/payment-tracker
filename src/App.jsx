@@ -6,13 +6,15 @@ import MembersView from './components/MembersView'
 import ItemsView from './components/ItemsView'
 import HistoryView from './components/HistoryView'
 import BulkAddView from './components/BulkAddView'
-import { Home, BarChart2, Users, Clock, Tag, ClipboardList, AlertTriangle } from 'lucide-react'
+import SharedExpenseView from './components/SharedExpenseView'
+import { Home, BarChart2, Users, Clock, Tag, ClipboardList, AlertTriangle, Scissors } from 'lucide-react'
 
 const TABS = [
   { key: 'home',    label: 'Home',    icon: Home },
   { key: 'monthly', label: 'Monthly', icon: BarChart2 },
   { key: 'history', label: 'History', icon: Clock },
   { key: 'bulk',    label: 'Bulk',    icon: ClipboardList },
+  { key: 'split',   label: 'Split',   icon: Scissors },
   { key: 'members', label: 'Members', icon: Users },
   { key: 'items',   label: 'Items',   icon: Tag },
 ]
@@ -49,6 +51,7 @@ export default function App() {
         {tab === 'history' && <HistoryView />}
         {tab === 'members' && <div className="px-5 pt-14 min-h-screen"><MembersView /></div>}
         {tab === 'bulk'    && <BulkAddView dirtyRef={bulkDirtyRef} />}
+        {tab === 'split'   && <SharedExpenseView />}
         {tab === 'items'   && <div className="px-5 pt-14 min-h-screen"><ItemsView /></div>}
       </div>
 
