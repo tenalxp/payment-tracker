@@ -6,16 +6,7 @@ import html2canvas from 'html2canvas'
 const STORAGE_KEY = 'shared_expenses'
 const CURRENCIES = ['฿', '₭', '$']
 
-const HEADER_COLORS = [
-  { id: 'ocean',   grad: 'linear-gradient(135deg,#1a6dff 0%,#00c6fb 100%)',  thumb: 'linear-gradient(135deg,#1a6dff,#00c6fb)' },
-  { id: 'sunset',  grad: 'linear-gradient(135deg,#ff416c 0%,#ff8c42 100%)',  thumb: 'linear-gradient(135deg,#ff416c,#ff8c42)' },
-  { id: 'aurora',  grad: 'linear-gradient(135deg,#6a11cb 0%,#2575fc 100%)',  thumb: 'linear-gradient(135deg,#6a11cb,#2575fc)' },
-  { id: 'mint',    grad: 'linear-gradient(135deg,#00b09b 0%,#96e6a1 100%)',  thumb: 'linear-gradient(135deg,#00b09b,#96e6a1)' },
-  { id: 'candy',   grad: 'linear-gradient(135deg,#f953c6 0%,#b91d73 100%)',  thumb: 'linear-gradient(135deg,#f953c6,#b91d73)' },
-  { id: 'fire',    grad: 'linear-gradient(135deg,#f7971e 0%,#ffd200 100%)',  thumb: 'linear-gradient(135deg,#f7971e,#ffd200)' },
-  { id: 'cosmic',  grad: 'linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%)', thumb: 'linear-gradient(135deg,#302b63,#24243e)' },
-  { id: 'lime',    grad: 'linear-gradient(135deg,#56ab2f 0%,#a8e063 100%)',  thumb: 'linear-gradient(135deg,#56ab2f,#a8e063)' },
-]
+const HEADER_GRAD = 'linear-gradient(135deg,#a8d8ea 0%,#c5dff8 50%,#d4eaf7 100%)'
 
 const load = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
 const save = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
@@ -28,7 +19,6 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
   const [price, setPrice] = useState(expense?.price?.toString() || '')
   const [currency, setCurrency] = useState(expense?.currency || '฿')
   const [note, setNote] = useState(expense?.note || '')
-  const [headerColor, setHeaderColor] = useState(expense?.headerColor || 'navy')
   const [memberInput, setMemberInput] = useState('')
   const [members, setMembers] = useState(expense?.members?.map(m => m.name) || [])
 
@@ -47,9 +37,9 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
     if (!canSave) return
     if (isEdit) {
       const prevMap = Object.fromEntries((expense.members || []).map(m => [m.name, m.paid]))
-      onSave({ ...expense, title: title.trim(), date, price: parseFloat(price), currency, note, headerColor, members: members.map(name => ({ name, paid: prevMap[name] ?? false })) })
+      onSave({ ...expense, title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: prevMap[name] ?? false })) })
     } else {
-      onSave({ id: Date.now().toString(), title: title.trim(), date, price: parseFloat(price), currency, note, headerColor, members: members.map(name => ({ name, paid: false })), createdAt: new Date().toISOString() })
+      onSave({ id: Date.now().toString(), title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: false })), createdAt: new Date().toISOString() })
     }
     onClose()
   }
@@ -122,20 +112,6 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
               )}
             </div>
 
-            <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Header Color</p>
-              <div className="flex gap-2 flex-wrap">
-                {HEADER_COLORS.map(c => (
-                  <button key={c.id} onClick={() => setHeaderColor(c.id)}
-                    className="w-8 h-8 rounded-full transition-all"
-                    style={{
-                      background: c.thumb,
-                      boxShadow: headerColor === c.id ? `0 0 0 2.5px #fff, 0 0 0 4.5px rgba(0,0,0,0.25)` : '0 1px 4px rgba(0,0,0,0.15)',
-                      transform: headerColor === c.id ? 'scale(1.18)' : 'scale(1)',
-                    }} />
-                ))}
-              </div>
-            </div>
 
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Note <span className="normal-case font-normal">(optional)</span></p>
@@ -160,7 +136,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
   const paidCount = expense.members.filter(m => m.paid).length
   const allPaid = paidCount === expense.members.length
   const [saving, setSaving] = useState(false)
-  const headerGrad = HEADER_COLORS.find(c => c.id === (expense.headerColor || 'navy'))?.grad || HEADER_COLORS[0].grad
 
   const handleSaveImage = async () => {
     setSaving(true)
@@ -181,7 +156,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(30,40,60,0.10);">
 
           <!-- header band -->
-          <div style="background:${headerGrad};padding:20px 22px 16px;">
+          <div style="background:${HEADER_GRAD};padding:20px 22px 16px;">
             <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;">${expense.title}</div>
             <div style="display:flex;gap:14px;margin-top:6px;">
               <span style="font-size:11px;color:rgba(255,255,255,0.55);">${dayjs(expense.date).format('D MMM YYYY')}</span>
@@ -260,7 +235,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
     <div className="rounded-3xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 20px rgba(30,40,60,0.08), 0 1px 4px rgba(30,40,60,0.04)' }}>
 
       {/* Header band */}
-      <div className="px-5 pt-4 pb-4" style={{ background: headerGrad }}>
+      <div className="px-5 pt-4 pb-4" style={{ background: HEADER_GRAD }}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-bold text-white truncate" style={{ fontSize: 16, letterSpacing: -0.3 }}>{expense.title}</p>
