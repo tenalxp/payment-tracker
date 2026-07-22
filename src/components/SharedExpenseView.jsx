@@ -1,15 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Trash2, X, Check, Users, Calendar, Receipt, Pencil, ImageDown, FileText } from 'lucide-react'
 import dayjs from 'dayjs'
 import html2canvas from 'html2canvas'
+import { supabase } from '../lib/supabase'
 
-const STORAGE_KEY = 'shared_expenses'
 const CURRENCIES = ['฿', '₭', '$']
-
 const HEADER_GRAD = 'linear-gradient(135deg,#a8d8ea 0%,#c5dff8 50%,#d4eaf7 100%)'
-
-const load = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-const save = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 
 // ── Form Modal ─────────────────────────────────────────────────────────────
 function ExpenseFormModal({ expense, onClose, onSave }) {
@@ -21,6 +17,7 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
   const [note, setNote] = useState(expense?.note || '')
   const [memberInput, setMemberInput] = useState('')
   const [members, setMembers] = useState(expense?.members?.map(m => m.name) || [])
+  const [saving, setSaving] = useState(false)
 
   const addMember = () => {
     const name = memberInput.trim()
@@ -28,19 +25,20 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
     setMembers(prev => [...prev, name])
     setMemberInput('')
   }
-
   const removeMember = (name) => setMembers(prev => prev.filter(m => m !== name))
   const handleKeyDown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addMember() } }
   const canSave = title.trim() && price && members.length > 0
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canSave) return
+    setSaving(true)
     if (isEdit) {
       const prevMap = Object.fromEntries((expense.members || []).map(m => [m.name, m.paid]))
-      onSave({ ...expense, title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: prevMap[name] ?? false })) })
+      await onSave({ ...expense, title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: prevMap[name] ?? false })) })
     } else {
-      onSave({ id: Date.now().toString(), title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: false })), createdAt: new Date().toISOString() })
+      await onSave({ id: Date.now().toString(), title: title.trim(), date, price: parseFloat(price), currency, note, members: members.map(name => ({ name, paid: false })), created_at: new Date().toISOString() })
     }
+    setSaving(false)
     onClose()
   }
 
@@ -62,13 +60,11 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
               <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Pickle Ball, Dinner…"
                 className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm font-medium text-gray-800 outline-none placeholder-gray-300 border border-gray-100 focus:border-gray-300 transition-colors" />
             </div>
-
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Date</p>
               <input type="date" value={date} onChange={e => setDate(e.target.value)}
                 className="w-full bg-gray-50 rounded-2xl px-4 py-3 text-sm text-gray-700 outline-none border border-gray-100 focus:border-gray-300 transition-colors" />
             </div>
-
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Total Amount</p>
               <div className="flex gap-2">
@@ -84,7 +80,6 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
                   className="flex-1 bg-gray-50 rounded-2xl px-4 py-3 text-sm font-medium text-gray-800 outline-none border border-gray-100 focus:border-gray-300 transition-colors placeholder-gray-300" />
               </div>
             </div>
-
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Members</p>
               <div className="flex gap-2 mb-2">
@@ -111,8 +106,6 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
                 </p>
               )}
             </div>
-
-
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Note <span className="normal-case font-normal">(optional)</span></p>
               <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Add a note for your friends…" rows={2}
@@ -120,9 +113,9 @@ function ExpenseFormModal({ expense, onClose, onSave }) {
             </div>
           </div>
 
-          <button onClick={handleSave} disabled={!canSave}
-            className={`w-full mt-5 py-3.5 rounded-2xl font-bold text-sm transition-all ${canSave ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
-            {isEdit ? 'Save Changes' : 'Create'}
+          <button onClick={handleSave} disabled={!canSave || saving}
+            className={`w-full mt-5 py-3.5 rounded-2xl font-bold text-sm transition-all ${canSave && !saving ? 'bg-gray-900 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create'}
           </button>
         </div>
       </div>
@@ -141,21 +134,10 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
     setSaving(true)
     try {
       const snap = document.createElement('div')
-      snap.style.cssText = [
-        'position:fixed', 'left:-9999px', 'top:0',
-        'width:380px', 'padding:28px',
-        "font-family:'Noto Sans Lao',system-ui,-apple-system,sans-serif",
-        'background:linear-gradient(145deg,#f8fafc 0%,#f0f4f8 100%)',
-        'border-radius:0',
-        'box-sizing:border-box',
-      ].join(';')
-
+      snap.style.cssText = 'position:fixed;left:-9999px;top:0;width:380px;padding:28px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(145deg,#f8fafc 0%,#f0f4f8 100%);border-radius:0;box-sizing:border-box;'
       const pct = Math.round((paidCount / expense.members.length) * 100)
-
       snap.innerHTML = `
         <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(30,40,60,0.10);">
-
-          <!-- header band -->
           <div style="background:${HEADER_GRAD};padding:20px 22px 16px;">
             <div style="font-size:18px;font-weight:800;color:#1a2636;letter-spacing:-0.3px;">${expense.title}</div>
             <div style="display:flex;gap:14px;margin-top:6px;">
@@ -163,9 +145,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
               <span style="font-size:11px;color:rgba(26,38,54,0.5);">${expense.members.length} people</span>
             </div>
           </div>
-
-          <!-- amounts row -->
-          <div style="display:flex;padding:16px 22px;gap:0;border-bottom:1px solid #f0f2f5;">
+          <div style="display:flex;padding:16px 22px;border-bottom:1px solid #f0f2f5;">
             <div style="flex:1;">
               <div style="font-size:9px;color:#aab;letter-spacing:1.5px;font-weight:600;margin-bottom:4px;">TOTAL</div>
               <div style="font-size:26px;font-weight:800;color:#d95c5c;letter-spacing:-0.5px;">${expense.currency}${expense.price.toLocaleString()}</div>
@@ -175,8 +155,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
               <div style="font-size:20px;font-weight:800;color:#1a2636;">${expense.currency}${perPerson.toLocaleString()}</div>
             </div>
           </div>
-
-          <!-- progress -->
           <div style="padding:12px 22px 0;">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
               <span style="font-size:10px;color:#8a9baa;font-weight:500;">${paidCount}/${expense.members.length} paid</span>
@@ -186,21 +164,17 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
               <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6ee7b7,#34d399);border-radius:99px;"></div>
             </div>
           </div>
-
-          <!-- members -->
           <div style="padding:10px 22px ${expense.note ? '0' : '16px'};">
             ${expense.members.map((m, i) => `
-              <div style="display:flex;align-items:center;gap:10px;padding:6px 0;${i < expense.members.length - 1 ? 'border-bottom:1px solid #f5f6f8;' : ''}">
-                <div style="width:14px;height:14px;min-width:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${m.paid ? '#10b981' : '#fff'};border:${m.paid ? 'none' : '1.5px solid #d0d8e0'};box-sizing:border-box;">
-                  ${m.paid ? '<span style="color:#fff;font-size:9px;line-height:1;font-weight:900;">✓</span>' : ''}
+              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;${i < expense.members.length - 1 ? 'border-bottom:1px solid #f5f6f8;' : ''}">
+                <div style="width:16px;height:16px;min-width:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${m.paid ? '#10b981' : '#fff'};border:${m.paid ? 'none' : '1.5px solid #d0d8e0'};">
+                  ${m.paid ? '<span style="color:#fff;font-size:10px;line-height:1;font-weight:900;">✓</span>' : ''}
                 </div>
-                <span style="font-size:13px;font-weight:600;flex:1;line-height:1.2;color:${m.paid ? '#b0b8c0' : '#1a2636'};text-decoration:${m.paid ? 'line-through' : 'none'};">${m.name}</span>
-                <span style="font-size:12px;font-weight:700;line-height:1.2;color:${m.paid ? '#b0b8c0' : '#d95c5c'};">${m.paid ? 'paid' : `${expense.currency}${perPerson.toLocaleString()}`}</span>
+                <span style="font-size:13px;font-weight:600;flex:1;color:${m.paid ? '#b0b8c0' : '#1a2636'};text-decoration:${m.paid ? 'line-through' : 'none'};">${m.name}</span>
+                <span style="font-size:12px;font-weight:700;color:${m.paid ? '#b0b8c0' : '#d95c5c'};">${m.paid ? 'paid' : `${expense.currency}${perPerson.toLocaleString()}`}</span>
               </div>`).join('')}
           </div>
-
           ${expense.note ? `
-          <!-- note -->
           <div style="margin:0 22px 16px;padding:10px 14px;background:#f8fafc;border-radius:12px;border-left:3px solid #d95c5c;">
             <div style="font-size:9px;color:#aab;letter-spacing:1.5px;font-weight:600;margin-bottom:4px;">NOTE</div>
             <div style="font-size:12px;color:#4a5568;line-height:1.5;">${expense.note}</div>
@@ -210,7 +184,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
       document.body.appendChild(snap)
       const canvas = await html2canvas(snap, { scale: 4, useCORS: true, backgroundColor: null, logging: false })
       document.body.removeChild(snap)
-
       const filename = `split-${expense.title.replace(/\s+/g, '-')}.jpg`
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.97))
       const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
@@ -232,9 +205,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
   }
 
   return (
-    <div className="rounded-3xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 20px rgba(30,40,60,0.08), 0 1px 4px rgba(30,40,60,0.04)' }}>
-
-      {/* Header band */}
+    <div className="rounded-3xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 20px rgba(30,40,60,0.08)' }}>
       <div className="px-5 pt-4 pb-4" style={{ background: HEADER_GRAD }}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -261,7 +232,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         </div>
       </div>
 
-      {/* Amounts row */}
       <div className="flex px-5 py-3.5" style={{ borderBottom: '1px solid #f0f2f5' }}>
         <div className="flex-1">
           <p className="text-[9px] font-semibold uppercase tracking-widest mb-1" style={{ color: '#aab' }}>Total</p>
@@ -273,7 +243,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         </div>
       </div>
 
-      {/* Progress */}
       <div className="px-5 pt-3 pb-1">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] font-medium" style={{ color: '#8a9baa' }}>{paidCount}/{expense.members.length} paid</span>
@@ -286,15 +255,14 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         </div>
       </div>
 
-      {/* Members list */}
       <div className="px-5 py-2">
         {expense.members.map((member, i) => (
           <button key={i} onClick={() => onTogglePaid(expense.id, i)}
             className="flex items-center gap-3 w-full py-1.5 transition-all active:scale-95"
             style={{ borderBottom: i < expense.members.length - 1 ? '1px solid #f5f6f8' : 'none' }}>
             <div className="shrink-0 flex items-center justify-center rounded-full transition-all"
-              style={{ width: 14, height: 14, background: member.paid ? '#10b981' : '#fff', border: member.paid ? 'none' : '1.5px solid #d0d8e0' }}>
-              {member.paid && <Check size={8} color="white" strokeWidth={3.5} />}
+              style={{ width: 16, height: 16, minWidth: 16, background: member.paid ? '#10b981' : '#fff', border: member.paid ? 'none' : '1.5px solid #d0d8e0' }}>
+              {member.paid && <Check size={9} color="white" strokeWidth={3} />}
             </div>
             <span className="text-left transition-all flex-1" style={{ fontSize: 13, fontWeight: 600, color: member.paid ? '#b0b8c0' : '#1a2636', textDecoration: member.paid ? 'line-through' : 'none' }}>
               {member.name}
@@ -306,7 +274,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         ))}
       </div>
 
-      {/* Note */}
       {expense.note && (
         <div className="mx-5 mb-3 px-3 py-2.5 rounded-2xl flex gap-2" style={{ background: '#f8fafc', borderLeft: '3px solid #d95c5c' }}>
           <FileText size={12} className="shrink-0 mt-0.5" style={{ color: '#d95c5c' }} />
@@ -314,7 +281,6 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
         </div>
       )}
 
-      {/* Save button */}
       <div className="px-5 pb-4">
         <button onClick={handleSaveImage} disabled={saving}
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-xs font-bold transition-all disabled:opacity-50"
@@ -329,29 +295,43 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
 
 // ── Main View ──────────────────────────────────────────────────────────────
 export default function SharedExpenseView() {
-  const [expenses, setExpenses] = useState(load)
+  const [expenses, setExpenses] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editExpense, setEditExpense] = useState(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
-  useEffect(() => { save(expenses) }, [expenses])
-
-  const handleSave = (expense) => {
-    setExpenses(prev => {
-      const exists = prev.find(e => e.id === expense.id)
-      return exists ? prev.map(e => e.id === expense.id ? expense : e) : [expense, ...prev]
-    })
+  const fetchExpenses = async () => {
+    const { data } = await supabase
+      .from('shared_expenses')
+      .select('*')
+      .order('date', { ascending: false })
+    setExpenses(data || [])
+    setLoading(false)
   }
 
-  const handleTogglePaid = (expenseId, memberIndex) => {
-    setExpenses(prev => prev.map(e => {
-      if (e.id !== expenseId) return e
-      const members = e.members.map((m, i) => i === memberIndex ? { ...m, paid: !m.paid } : m)
-      return { ...e, members }
-    }))
+  useEffect(() => { fetchExpenses() }, [])
+
+  const handleSave = async (expense) => {
+    const { id, ...fields } = expense
+    if (editExpense) {
+      await supabase.from('shared_expenses').update({ ...fields, members: expense.members }).eq('id', id)
+    } else {
+      await supabase.from('shared_expenses').insert([{ id, ...fields }])
+    }
+    fetchExpenses()
   }
 
-  const handleDelete = (id) => {
+  const handleTogglePaid = async (expenseId, memberIndex) => {
+    const expense = expenses.find(e => e.id === expenseId)
+    if (!expense) return
+    const members = expense.members.map((m, i) => i === memberIndex ? { ...m, paid: !m.paid } : m)
+    setExpenses(prev => prev.map(e => e.id === expenseId ? { ...e, members } : e))
+    await supabase.from('shared_expenses').update({ members }).eq('id', expenseId)
+  }
+
+  const handleDelete = async (id) => {
+    await supabase.from('shared_expenses').delete().eq('id', id)
     setExpenses(prev => prev.filter(e => e.id !== id))
     setConfirmDeleteId(null)
   }
@@ -361,8 +341,6 @@ export default function SharedExpenseView() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#E8EEF5 0%,#EDF3F0 100%)' }}>
-
-      {/* Header */}
       <div className="px-5 pt-14 pb-5">
         <div className="flex items-end justify-between">
           <div>
@@ -378,9 +356,10 @@ export default function SharedExpenseView() {
         </div>
       </div>
 
-      {/* List */}
       <div className="px-4 pb-10 flex flex-col gap-4">
-        {expenses.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-16 text-sm" style={{ color: '#8A9BAA' }}>Loading…</div>
+        ) : expenses.length === 0 ? (
           <div className="text-center py-16 px-4 bg-white rounded-3xl" style={{ boxShadow: '0 4px 20px rgba(100,120,140,0.08)' }}>
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: 'linear-gradient(135deg,#E8EEF5,#DDE5EE)' }}>
               <Receipt size={24} style={{ color: '#8A9BAA' }} />
@@ -389,7 +368,7 @@ export default function SharedExpenseView() {
             <p className="text-sm text-gray-400">Tap New to split a bill with friends</p>
           </div>
         ) : (
-          [...expenses].sort((a, b) => b.date.localeCompare(a.date)).map(expense => (
+          expenses.map(expense => (
             <ExpenseCard key={expense.id} expense={expense} onTogglePaid={handleTogglePaid} onConfirmDelete={setConfirmDeleteId} onEdit={openEdit} />
           ))
         )}
