@@ -134,7 +134,7 @@ function ExpenseCard({ expense, onTogglePaid, onConfirmDelete, onEdit }) {
     setSaving(true)
     try {
       const snap = document.createElement('div')
-      snap.style.cssText = 'position:fixed;left:-9999px;top:0;width:380px;padding:28px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(145deg,#f8fafc 0%,#f0f4f8 100%);border-radius:0;box-sizing:border-box;'
+      snap.style.cssText = "position:fixed;left:-9999px;top:0;width:380px;padding:28px;font-family:'Noto Sans Lao',system-ui,-apple-system,sans-serif;background:linear-gradient(145deg,#f8fafc 0%,#f0f4f8 100%);border-radius:0;box-sizing:border-box;"
       const pct = Math.round((paidCount / expense.members.length) * 100)
       snap.innerHTML = `
         <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(30,40,60,0.10);">
